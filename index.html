@@ -7,7 +7,7 @@
   <style>
     body {
       font-family: 'Roboto', sans-serif;
-      background-color: #f2f2f2;
+      background: linear-gradient(135deg, #c3eaff, #e0d4f7);
       margin: 0;
       padding: 20px;
       color: #333;
@@ -15,50 +15,60 @@
 
     h1 {
       text-align: center;
-      color: #444;
+      color: #222;
+      margin-bottom: 30px;
+      font-size: 2em;
     }
 
     .search-container {
       max-width: 600px;
-      margin: 20px auto;
+      margin: 0 auto 30px auto;
       display: flex;
       gap: 10px;
     }
 
     input[type="text"] {
       flex-grow: 1;
-      padding: 10px;
+      padding: 12px;
       font-size: 16px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
+      border: 2px solid #6ca0f6;
+      border-radius: 6px;
+      outline: none;
+      transition: border-color 0.3s ease;
+      background-color: #f9f9f9;
+    }
+
+    input[type="text"]:focus {
+      border-color: #4a7bdc;
     }
 
     button {
-      padding: 10px 20px;
+      padding: 12px 20px;
       font-size: 16px;
-      background-color: #007bff;
+      background: linear-gradient(135deg, #4a7bdc, #7f59d2);
       color: white;
       border: none;
-      border-radius: 4px;
+      border-radius: 6px;
       cursor: pointer;
-      transition: background-color 0.3s ease;
+      transition: transform 0.2s ease, background 0.3s ease;
     }
 
     button:hover {
-      background-color: #0056b3;
+      transform: scale(1.05);
+      background: linear-gradient(135deg, #395fbb, #6b47c2);
     }
 
     pre {
       max-width: 800px;
-      margin: 30px auto;
+      margin: 0 auto;
       padding: 20px;
-      background-color: #fff;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
       white-space: pre-wrap;
       word-wrap: break-word;
       font-size: 16px;
+      line-height: 1.5;
     }
   </style>
 </head>
