@@ -1,15 +1,13 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Подсветка слова в тексте</title>
+  <title>Подсветка слова</title>
   <style>
     body {
       background-color: #e0ffe0;
       font-family: sans-serif;
       color: #003300;
-      text-align: center;
       padding: 40px;
     }
 
@@ -19,54 +17,59 @@
       font-size: 16px;
     }
 
-    textarea {
-      width: 80%;
-      height: 300px;
-      margin-top: 20px;
-      padding: 10px;
-      font-size: 16px;
-      border: 2px solid #00aa00;
+    #output {
+      margin-top: 30px;
       background-color: #f0fff0;
+      border: 2px solid #00aa00;
       border-radius: 8px;
-      resize: vertical;
+      padding: 20px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      font-size: 16px;
+    }
+
+    .highlight {
+      background-color: yellow;
+      color: #000;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
-  <h2>Выдели слово долларами из text.txt</h2>
+  <h2>Загрузить text.txt и выделить слово</h2>
 
-  <input type="text" id="targetWord" placeholder="Введите слово"><br>
-  <button onclick="processText()">Выделить</button>
+  <input type="text" id="targetWord" placeholder="Введите слово">
+  <button onclick="highlightWord()">Подсветить</button>
 
-  <textarea id="textArea" readonly placeholder="Загрузка текста..."></textarea>
+  <div id="output">Загрузка текста...</div>
 
   <script>
     let originalText = "";
 
-    // Загружаем text.txt при запуске
+    // Загружаем text.txt при открытии страницы
     window.onload = function() {
       fetch("text.txt")
         .then(response => response.text())
         .then(data => {
           originalText = data;
-          document.getElementById("textArea").value = originalText;
+          document.getElementById("output").textContent = originalText;
         })
         .catch(() => {
-          document.getElementById("textArea").value = "Не удалось загрузить text.txt";
+          document.getElementById("output").textContent = "Не удалось загрузить text.txt";
         });
     };
 
-    // Обработка текста
-    function processText() {
+    // Подсветка слова
+    function highlightWord() {
       const word = document.getElementById("targetWord").value.trim();
       if (!word || !originalText) {
-        alert("Введите слово!");
+        alert("Введите слово для подсветки");
         return;
       }
 
-      const regex = new RegExp(`\\b${word}\\b`, "gi");
-      const updatedText = originalText.replace(regex, `\$${word}`);
-      document.getElementById("textArea").value = updatedText;
+      const regex = new RegExp(`\\b(${word})\\b`, "gi");
+      const highlightedText = originalText.replace(regex, `<span class="highlight">\$${word}</span>`);
+      document.getElementById("output").innerHTML = highlightedText;
     }
   </script>
 </body>
