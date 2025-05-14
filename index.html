@@ -1,83 +1,55 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>McDonnell Douglas F-15A Eagle - Поиск текста</title>
-  <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f8e1e1;
-      margin: 40px;
-      padding: 20px;
-      color: #4a4a4a;
-    }
-    h1 {
-      text-align: center;
-      color: #ff4f8d;
-    }
-    textarea, input, button {
-      margin: 12px 0;
-      padding: 10px;
-      width: 100%;
-      font-size: 16px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-    #searchResults {
-      background-color: #fff7f7;
-      border: 1px solid #ffcccc;
-      padding: 15px;
-      white-space: pre-wrap;
-      word-wrap: break-word;
-    }
-    mark {
-      background-color: #ffdd57;
-      font-weight: bold;
-    }
-  </style>
+  <meta charset="UTF-8">
+  <title>Поиск в тексте</title>
+  <style>
+    .highlight {
+      background-color: yellow;
+      font-weight: bold;
+    }
+    pre {
+      white-space: pre-wrap;
+    }
+  </style>
 </head>
 <body>
-  <h1>Поиск в тексте</h1>
-  
-  <textarea id="textInput" rows="10" placeholder="Вставьте текст сюда...">McDonnell Douglas F-15A Eagle (англ. Eagle — «Орёл») — американский истребитель 4-го поколения. Разработка самолёта, который впоследствии станет F-15, началась в 1965 году, когда ВВС США опубликовали требования для истребителя завоевания превосходства в воздухе, составленные на основе боевого опыта Вьетнамской войны. Среди этих требований, кроме высокой скорости, фигурировало также требование к повышенной манёвренности будущего самолёта. Среди четырёх участников конкурса приоритет был отдан компании McDonnell Douglas, чей проект 1969 года получил символическое имя «Eagle». После постройки и испытаний первых лётных образцов одноместный F-15A был официально принят на вооружение в 1976 году, при этом двухместная учебно-тренировочная версия F-15B была принята на вооружение двумя годами ранее, в 1974-м.
+  <h1>Содержимое text.txt</h1>
+  <input type="text" id="searchInput" placeholder="Введите слово для поиска">
+  <button onclick="searchWord()">Искать</button>
+  <pre id="textContent">Загрузка...</pre>
 
-Первое боевое применение F-15A Eagle так же получил не под американским флагом, а под опознавательными знаками израильских ВВС во время операции в Ливане в конце 70-х годов, где новый истребитель успешно использовался против сирийской авиации. В последующие годы F-15 Eagle постоянно усовершенствовался, и общее число построенных истребителей модели F-15A превысило 380 единиц. Последние стоявшие на вооружении F-15A оставались в строю до 2009 года.</textarea>
-  
-  <input type="text" id="wordInput" placeholder="Введите слово для поиска">
-  <button onclick="performSearch()">Поиск</button>
-  
-  <div id="searchResults">Результаты появятся здесь...</div>
+  <script type="module">
+    import { loadPyodide } from "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.mjs";
 
-  <script>
-    let pyodide;
-    async function main() {
-      pyodide = await loadPyodide();
-      await pyodide.runPythonAsync(
-def search_text(text, word):
-    word = word.strip().lower()
-    results = []
-    for line in text.splitlines():
-        original = line.strip()
-        if word.lower() in original.lower():
-            highlighted = original.replace(word, f"<mark>{word}</mark>")
-            results.append("→ " + highlighted)
-    return "\\n".join(results) if results else "Совпадений не найдено."
-);
-    }
-    main();
+    let pyodide = await loadPyodide();
+    let textData = "";
 
-    async function performSearch() {
-      const text = document.getElementById("textInput").value;
-      const word = document.getElementById("wordInput").value;
+    // Загружаем файл text.txt
+    async function loadText() {
+      const response = await fetch("text.txt");
+      textData = await response.text();
+      document.getElementById("textContent").textContent = textData;
+    }
 
-      try {
-        const result = await pyodide.globals.get("search_text")(text, word);
-        document.getElementById("searchResults").innerHTML = result;
-      } catch (err) {
-        document.getElementById("searchResults").textContent = "Ошибка: " + err;
-      }
-    }
-  </script>
+    loadText();
+
+    // Функция поиска и выделения
+    async function searchWord() {
+      const word = document.getElementById("searchInput").value.trim();
+      if (!word) return;
+
+      pyodide.globals.set("text_data", textData);
+      pyodide.globals.set("search_word", word);
+
+      await pyodide.runPythonAsync(`
+import re
+highlighted = re.sub(f"(?i)({re.escape(search_word)})", r"<span class='highlight'>\\1</span>", text_data)
+      `);
+
+      const result = pyodide.globals.get("highlighted");
+      document.getElementById("textContent").innerHTML = result;
+    }
+  </script>
 </body>
 </html>
