@@ -1,1 +1,26 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Казахи Реплейсер</title>
+</head>
+<body>
+  <h2>Заменить "казахи" на "$казахи"</h2>
+  
+  <textarea id="textInput" rows="10" cols="60" placeholder="Вставьте ваш текст здесь..."></textarea><br><br>
+  
+  <button onclick="replaceKazakhi()">Заменить</button>
 
+  <h3>Результат:</h3>
+  <pre id="output"></pre>
+
+  <script>
+    function replaceKazakhi() {
+      const word = "казахи";
+      const inputText = document.getElementById("textInput").value;
+      const replacedText = inputText.replaceAll(word, `$${word}`);
+      document.getElementById("output").innerText = replacedText;
+    }
+  </script>
+</body>
+</html>
