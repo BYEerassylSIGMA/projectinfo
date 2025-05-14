@@ -1,57 +1,53 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Text Search</title>
+    <title>Simple Text Replacer</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-        }
-        .highlight {
-            background-color: yellow;
-            font-weight: bold;
-        }
+        body { font-family: Arial; max-width: 600px; margin: 20px auto; }
+        textarea { width: 100%; height: 150px; margin: 10px 0; }
+        button { padding: 8px 15px; background: #4CAF50; color: white; border: none; }
     </style>
 </head>
 <body>
-    <h1>Search in text.txt</h1>
-    <input type="text" id="searchBox" placeholder="Enter word to search">
-    <button onclick="search()">Search</button>
-    <button onclick="reset()">Reset</button>
-    <div id="content"></div>
+    <h2>GitHub Text Replacer</h2>
+    
+    <div>
+        <p>Word to replace:</p>
+        <input type="text" id="wordInput" value="example">
+        
+        <p>GitHub file URL:</p>
+        <input type="text" id="urlInput" 
+               value="https://raw.githubusercontent.com/BYEerassyISIGMA/projectinfo/main/text.txt">
+        
+        <button onclick="processText()">Process Text</button>
+    </div>
+    
+    <textarea id="output" readonly></textarea>
 
     <script>
-        // Load the text file when page opens
-        fetch('https://raw.githubusercontent.com/BYEerassyISIGMA/projectinfo/main/text.txt')
-            .then(response => response.text())
-            .then(text => {
-                window.originalText = text;
-                document.getElementById('content').textContent = text;
-            })
-            .catch(error => {
-                document.getElementById('content').textContent = "Error loading file";
-                console.error(error);
-            });
-
-        // Search and highlight function
-        function search() {
-            const word = document.getElementById('searchBox').value.trim();
-            if (!word) return;
+        async function processText() {
+            const word = document.getElementById('wordInput').value;
+            const url = document.getElementById('urlInput').value;
+            const output = document.getElementById('output');
             
-            const text = window.originalText;
-            const highlighted = text.replace(
-                new RegExp(word, 'gi'), 
-                match => `<span class="highlight">${match}</span>`
-            );
+            output.value = "Loading...";
             
-            document.getElementById('content').innerHTML = highlighted;
+            try {
+                // Fetch the text file from GitHub
+                const response = await fetch(url);
+                const text = await response.text();
+                
+                // Replace the word with $word$
+                const newText = text.replace(new RegExp(word, 'g'), `$${word}$`);
+                
+                output.value = newText;
+            } catch (error) {
+                output.value = `Error: ${error.message}`;
+            }
         }
-
-        // Reset to original text
-        function reset() {
-            document.getElementById('content').textContent = window.originalText;
-            document.getElementById('searchBox').value = '';
-        }
+        
+        // Load initial text when page opens
+        processText();
     </script>
 </body>
 </html>
