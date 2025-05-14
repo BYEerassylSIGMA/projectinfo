@@ -1,54 +1,83 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>Подсветка слова $</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 40px;
-    }
-    textarea, input {
-      width: 100%;
-      padding: 10px;
-      margin: 10px 0;
-    }
-    .output {
-      white-space: pre-wrap;
-      background-color: #f0f0f0;
-      padding: 15px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Редактор текста</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        input[type="text"] {
+            padding: 5px;
+            font-size: 16px;
+            width: 250px;
+        }
+        button {
+            padding: 5px 10px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            margin-left: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
 </head>
 <body>
 
-  <h1>Подсветка слова $</h1>
+    <h1>Текст:</h1>
+    <pre id="fileContent">Ваш исходный текст будет отображён здесь...</pre>
 
-  <label>Введите слово:</label>
-  <input type="text" id="wordInput" placeholder="например, gigachad">
+    <h3>Введите слово для замены:</h3>
+    <input type="text" id="wordInput" required>
+    <button onclick="replaceWord()">Заменить</button>
 
-  <label>Введите текст:</label>
-  <textarea id="textInput" rows="10" placeholder="Вставьте сюда ваш текст..."></textarea>
+    <p id="statusMessage"></p>
 
-  <button onclick="highlightWord()">Подсветить</button>
+    <script>
+        // Исходный текст (для демонстрации)
+        const initialText = `Пример текста. Здесь будет слово, которое можно заменить. Например, слово тест.
+        Мы также можем заменить слово "слово" на доллары.`;
 
-  <h2>Результат:</h2>
-  <div id="output" class="output"></div>
+        // Отображаем исходный текст на странице
+        document.getElementById('fileContent').textContent = initialText;
 
-  <script>
-    function highlightWord() {
-      const word = document.getElementById('wordInput').value.trim();
-      const text = document.getElementById('textInput').value;
-      if (!word) return;
+        // Функция для замены слова
+        function replaceWord() {
+            const word = document.getElementById('wordInput').value.trim();
+            if (word === '') {
+                alert('Введите слово для замены.');
+                return;
+            }
 
-      // Регулярное выражение с экранированием спецсимволов
-      const safeWord = word.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
-      const regex = new RegExp(safeWord, 'g');
-
-      const highlighted = text.replace(regex, '$' + word);
-      document.getElementById('output').innerText = highlighted;
-    }
-  </script>
+            const fileContent = document.getElementById('fileContent').textContent;
+            if (fileContent.includes(word)) {
+                const updatedContent = fileContent.replace(new RegExp(word, 'g'), `$${word}$`);
+                
+                // Обновляем отображение на странице
+                document.getElementById('fileContent').textContent = updatedContent;
+                document.getElementById('statusMessage').textContent = 'Слово заменено на $слово$.';
+            } else {
+                document.getElementById('statusMessage').textContent = 'Слово не найдено в тексте.';
+            }
+        }
+    </script>
 
 </body>
 </html>
