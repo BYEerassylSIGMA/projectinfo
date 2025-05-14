@@ -1,77 +1,72 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Сигма</title>
+  <title>Подсветка слова в тексте</title>
   <style>
     body {
       background-color: #e0ffe0;
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      font-family: sans-serif;
       color: #003300;
       text-align: center;
       padding: 40px;
     }
 
-    h2 {
-      color: #006600;
+    input[type="text"], button {
+      margin: 10px;
+      padding: 10px;
+      font-size: 16px;
     }
 
     textarea {
       width: 80%;
-      height: 150px;
-      padding: 10px;
-      border: 2px solid #00aa00;
-      border-radius: 8px;
-      font-size: 16px;
-      resize: vertical;
-      background-color: #f0fff0;
-    }
-
-    button {
+      height: 300px;
       margin-top: 20px;
-      padding: 10px 20px;
-      background-color: #00cc44;
-      color: white;
-      border: none;
-      border-radius: 5px;
+      padding: 10px;
       font-size: 16px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-
-    button:hover {
-      background-color: #009933;
-    }
-
-    pre {
-      background-color: #ccffcc;
-      padding: 15px;
+      border: 2px solid #00aa00;
+      background-color: #f0fff0;
       border-radius: 8px;
-      text-align: left;
-      width: 80%;
-      margin: 20px auto;
-      white-space: pre-wrap;
-      word-wrap: break-word;
-      border: 1px solid #00aa00;
+      resize: vertical;
     }
   </style>
 </head>
 <body>
-  <h2>Ты сигма или нет</h2>
+  <h2>Выдели слово долларами из text.txt</h2>
 
-  <textarea id="textInput" placeholder="Вставьте текст..."></textarea><br>
+  <input type="text" id="targetWord" placeholder="Введите слово"><br>
+  <button onclick="processText()">Выделить</button>
 
-  <button onclick="replaceKazakhi()">Заменить</button>
-
-  <h3>Результат:</h3>
-  <pre id="output"></pre>
+  <textarea id="textArea" readonly placeholder="Загрузка текста..."></textarea>
 
   <script>
-    function replaceKazakhi() {
-      const word = "сигма";
-      const inputText = document.getElementById("textInput").value;
-      const replacedText = inputText.replaceAll(word, `$${word}`);
-      document.getElementById("output").innerText = replacedText;
+    let originalText = "";
+
+    // Загружаем text.txt при запуске
+    window.onload = function() {
+      fetch("text.txt")
+        .then(response => response.text())
+        .then(data => {
+          originalText = data;
+          document.getElementById("textArea").value = originalText;
+        })
+        .catch(() => {
+          document.getElementById("textArea").value = "Не удалось загрузить text.txt";
+        });
+    };
+
+    // Обработка текста
+    function processText() {
+      const word = document.getElementById("targetWord").value.trim();
+      if (!word || !originalText) {
+        alert("Введите слово!");
+        return;
+      }
+
+      const regex = new RegExp(`\\b${word}\\b`, "gi");
+      const updatedText = originalText.replace(regex, `\$${word}`);
+      document.getElementById("textArea").value = updatedText;
     }
   </script>
 </body>
