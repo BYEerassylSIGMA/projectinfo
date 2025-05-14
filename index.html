@@ -2,79 +2,53 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Подсветка слова в тексте</title>
+  <title>Подсветка слова $</title>
   <style>
     body {
-      background-color: #e0ffe0;
-      font-family: sans-serif;
-      color: #003300;
-      padding: 40px;
+      font-family: Arial, sans-serif;
+      margin: 40px;
     }
-
-    input, button {
-      margin: 10px;
+    textarea, input {
+      width: 100%;
       padding: 10px;
-      font-size: 16px;
+      margin: 10px 0;
     }
-
-    #output {
-      margin-top: 30px;
-      background-color: #f0fff0;
-      border: 2px solid #00aa00;
-      border-radius: 8px;
-      padding: 20px;
+    .output {
       white-space: pre-wrap;
-      word-wrap: break-word;
-      font-size: 16px;
-    }
-
-    .highlight {
-      background-color: yellow;
-      font-weight: bold;
-      color: black;
+      background-color: #f0f0f0;
+      padding: 15px;
     }
   </style>
 </head>
 <body>
-  <h2>Загрузите файл и подсветите слово</h2>
 
-  <input type="file" id="fileInput" accept=".txt"><br>
-  <input type="text" id="targetWord" placeholder="Введите слово для подсветки">
+  <h1>Подсветка слова $</h1>
+
+  <label>Введите слово:</label>
+  <input type="text" id="wordInput" placeholder="например, gigachad">
+
+  <label>Введите текст:</label>
+  <textarea id="textInput" rows="10" placeholder="Вставьте сюда ваш текст..."></textarea>
+
   <button onclick="highlightWord()">Подсветить</button>
 
-  <div id="output">Здесь появится текст...</div>
+  <h2>Результат:</h2>
+  <div id="output" class="output"></div>
 
   <script>
-    let originalText = "";
-
-    // Загрузка текста из файла
-    document.getElementById('fileInput').addEventListener('change', function() {
-      const file = this.files[0];
-      const reader = new FileReader();
-
-      reader.onload = function(e) {
-        originalText = e.target.result;
-        document.getElementById("output").textContent = originalText;
-      };
-
-      if (file) {
-        reader.readAsText(file, "UTF-8");
-      }
-    });
-
-    // Подсветка слова
     function highlightWord() {
-      const word = document.getElementById("targetWord").value.trim();
-      if (!word || !originalText) {
-        alert("Сначала загрузите текст и введите слово");
-        return;
-      }
+      const word = document.getElementById('wordInput').value.trim();
+      const text = document.getElementById('textInput').value;
+      if (!word) return;
 
-      // Регулярное выражение для замены с подсветкой
-      const regex = new RegExp(`\\b(${word})\\b`, "gi");
-      const highlightedText = originalText.replace(regex, `<span class="highlight">\$${word}</span>`);
-      document.getElementById("output").innerHTML = highlightedText;
+      // Регулярное выражение с экранированием спецсимволов
+      const safeWord = word.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+      const regex = new RegExp(safeWord, 'g');
+
+      const highlighted = text.replace(regex, '$' + word);
+      document.getElementById('output').innerText = highlighted;
     }
   </script>
+
 </body>
 </html>
