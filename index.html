@@ -4,10 +4,6 @@
   <meta charset="UTF-8">
   <title>Поиск в тексте</title>
   <style>
-    .highlight {
-      background-color: yellow;
-      font-weight: bold;
-    }
     pre {
       white-space: pre-wrap;
     }
@@ -42,11 +38,11 @@
 
       await pyodide.runPythonAsync(`
 import re
-highlighted = re.sub(f"(?i)({re.escape(search_word)})", r"<mark>\\1</mark>", text_data)
+highlighted = re.sub(f"(?i)({re.escape(search_word)})", r"\\$\\1\\$", text_data)
       `);
 
       const result = pyodide.globals.get("highlighted");
-      document.getElementById("textContent").innerHTML = result;
+      document.getElementById("textContent").textContent = result;
     });
   </script>
 </body>
