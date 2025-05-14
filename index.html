@@ -8,28 +8,46 @@
 </head>
 <body>
     <h1>Редактор текста с Pyodide</h1>
+    
+    <!-- Форма для ввода слова -->
     <form id="wordForm">
         <label for="wordInput">Введите слово:</label>
         <input type="text" id="wordInput" required>
         <button type="submit">Обновить текст</button>
     </form>
+    
+    <!-- Отображение исходного текста -->
+    <h2>Текущий текст:</h2>
+    <div id="originalText" style="white-space: pre-wrap;"></div>
+    
     <div id="result"></div>
 
     <script>
-        // Функция загрузки Pyodide
+        // Загружаем Pyodide
         async function loadPyodideAndRun() {
             await loadPyodide();  // Загружаем Pyodide
         }
 
-        // Инициализация Pyodide
         loadPyodideAndRun();
 
-        // Текущий текст, который будет обновляться
-        let text = "Это простой текст. Тут есть несколько слов.";
+        // URL вашего файла на GitHub (замените на реальный путь к файлу)
+        const fileUrl = 'https://raw.githubusercontent.com/ваш_пользователь/ваш_репозиторий/main/text.txt';
 
-        // Функция для обновления текста
-        async function updateText(word) {
-            // Запуск Python кода в Pyodide
+        // Функция для загрузки текста с GitHub
+        async function fetchTextFromGitHub() {
+            const response = await fetch(fileUrl);
+            if (response.ok) {
+                const text = await response.text();
+                document.getElementById('originalText').innerText = text;
+                return text;
+            } else {
+                console.error('Ошибка при загрузке файла с GitHub');
+                return '';
+            }
+        }
+
+        // Функция для обновления текста с использованием Python в Pyodide
+        async function updateText(text, word) {
             const pythonCode = `
 import re
 def update_text(text, word):
@@ -40,7 +58,7 @@ def update_text(text, word):
         return text
 update_text('${text}', '${word}')
             `;
-            const updatedText = await pyodide.runPython(pythonCode);  // Запуск Python кода
+            const updatedText = await pyodide.runPython(pythonCode);  // Запуск Python-кода через Pyodide
 
             return updatedText;
         }
@@ -50,9 +68,10 @@ update_text('${text}', '${word}')
             e.preventDefault();
 
             const word = document.getElementById('wordInput').value;  // Получаем введённое слово
-            const updatedText = await updateText(word);  // Обновляем текст с использованием Pyodide
+            const text = await fetchTextFromGitHub();  // Загружаем текст с GitHub
+            const updatedText = await updateText(text, word);  // Обновляем текст с использованием Pyodide
 
-            document.getElementById('result').innerText = updatedText;  // Выводим результат на страницу
+            document.getElementById('result').innerText = updatedText;  // Выводим обновленный текст
         });
     </script>
 </body>
