@@ -16,7 +16,7 @@
 <body>
   <h1>Содержимое text.txt</h1>
   <input type="text" id="searchInput" placeholder="Введите слово для поиска">
-  <button onclick="searchWord()">Искать</button>
+  <button id="searchButton">Искать</button>
   <pre id="textContent">Загрузка...</pre>
 
   <script type="module">
@@ -25,7 +25,6 @@
     let pyodide = await loadPyodide();
     let textData = "";
 
-    // Загружаем файл text.txt
     async function loadText() {
       const response = await fetch("text.txt");
       textData = await response.text();
@@ -34,8 +33,7 @@
 
     loadText();
 
-    // Функция поиска и выделения
-    async function searchWord() {
+    document.getElementById("searchButton").addEventListener("click", async () => {
       const word = document.getElementById("searchInput").value.trim();
       if (!word) return;
 
@@ -44,12 +42,12 @@
 
       await pyodide.runPythonAsync(`
 import re
-highlighted = re.sub(f"(?i)({re.escape(search_word)})", r"<span class='highlight'>\\1</span>", text_data)
+highlighted = re.sub(f"(?i)({re.escape(search_word)})", r"<mark>\\1</mark>", text_data)
       `);
 
       const result = pyodide.globals.get("highlighted");
       document.getElementById("textContent").innerHTML = result;
-    }
+    });
   </script>
 </body>
 </html>
