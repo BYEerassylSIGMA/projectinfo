@@ -1,27 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Simple Text Search</title>
+    <title>Text Search</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
             padding: 20px;
-        }
-        #search {
-            padding: 8px;
-            width: 300px;
-            margin-right: 10px;
-        }
-        button {
-            padding: 8px 15px;
-        }
-        #text {
-            margin-top: 20px;
-            white-space: pre-wrap;
-            border: 1px solid #ddd;
-            padding: 15px;
         }
         .highlight {
             background-color: yellow;
@@ -31,45 +15,42 @@
 </head>
 <body>
     <h1>Search in text.txt</h1>
-    <div>
-        <input type="text" id="search" placeholder="Type a word to search">
-        <button onclick="searchText()">Search</button>
-        <button onclick="resetText()">Reset</button>
-    </div>
-    <div id="text">Loading text file...</div>
+    <input type="text" id="searchBox" placeholder="Enter word to search">
+    <button onclick="search()">Search</button>
+    <button onclick="reset()">Reset</button>
+    <div id="content"></div>
 
     <script>
-        let originalText = '';
-        
         // Load the text file when page opens
         fetch('https://raw.githubusercontent.com/BYEerassyISIGMA/projectinfo/main/text.txt')
             .then(response => response.text())
             .then(text => {
-                originalText = text;
-                document.getElementById('text').textContent = text;
+                window.originalText = text;
+                document.getElementById('content').textContent = text;
             })
             .catch(error => {
-                document.getElementById('text').textContent = 'Error loading file: ' + error;
+                document.getElementById('content').textContent = "Error loading file";
+                console.error(error);
             });
 
-        // Search function
-        function searchText() {
-            const word = document.getElementById('search').value;
+        // Search and highlight function
+        function search() {
+            const word = document.getElementById('searchBox').value.trim();
             if (!word) return;
             
-            const text = originalText;
+            const text = window.originalText;
             const highlighted = text.replace(
                 new RegExp(word, 'gi'), 
                 match => `<span class="highlight">${match}</span>`
             );
             
-            document.getElementById('text').innerHTML = highlighted;
+            document.getElementById('content').innerHTML = highlighted;
         }
 
-        // Reset function
-        function resetText() {
-            document.getElementById('text').textContent = originalText;
-            document.getElementById('search').value = '';
+        // Reset to original text
+        function reset() {
+            document.getElementById('content').textContent = window.originalText;
+            document.getElementById('searchBox').value = '';
         }
     </script>
 </body>
