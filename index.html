@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Подсветка слова</title>
+  <title>Подсветка слова в тексте</title>
   <style>
     body {
       background-color: #e0ffe0;
@@ -11,7 +11,7 @@
       padding: 40px;
     }
 
-    input[type="text"], button {
+    input, button {
       margin: 10px;
       padding: 10px;
       font-size: 16px;
@@ -30,43 +30,47 @@
 
     .highlight {
       background-color: yellow;
-      color: #000;
       font-weight: bold;
+      color: black;
     }
   </style>
 </head>
 <body>
-  <h2>Загрузить text.txt и выделить слово</h2>
+  <h2>Загрузите файл и подсветите слово</h2>
 
-  <input type="text" id="targetWord" placeholder="Введите слово">
+  <input type="file" id="fileInput" accept=".txt"><br>
+  <input type="text" id="targetWord" placeholder="Введите слово для подсветки">
   <button onclick="highlightWord()">Подсветить</button>
 
-  <div id="output">Загрузка текста...</div>
+  <div id="output">Здесь появится текст...</div>
 
   <script>
     let originalText = "";
 
-    // Загружаем text.txt при открытии страницы
-    window.onload = function() {
-      fetch("text.txt")
-        .then(response => response.text())
-        .then(data => {
-          originalText = data;
-          document.getElementById("output").textContent = originalText;
-        })
-        .catch(() => {
-          document.getElementById("output").textContent = "Не удалось загрузить text.txt";
-        });
-    };
+    // Загрузка текста из файла
+    document.getElementById('fileInput').addEventListener('change', function() {
+      const file = this.files[0];
+      const reader = new FileReader();
+
+      reader.onload = function(e) {
+        originalText = e.target.result;
+        document.getElementById("output").textContent = originalText;
+      };
+
+      if (file) {
+        reader.readAsText(file, "UTF-8");
+      }
+    });
 
     // Подсветка слова
     function highlightWord() {
       const word = document.getElementById("targetWord").value.trim();
       if (!word || !originalText) {
-        alert("Введите слово для подсветки");
+        alert("Сначала загрузите текст и введите слово");
         return;
       }
 
+      // Регулярное выражение для замены с подсветкой
       const regex = new RegExp(`\\b(${word})\\b`, "gi");
       const highlightedText = originalText.replace(regex, `<span class="highlight">\$${word}</span>`);
       document.getElementById("output").innerHTML = highlightedText;
