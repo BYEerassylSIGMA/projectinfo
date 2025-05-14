@@ -3,81 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Редактор текста</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        h1 {
-            color: #333;
-        }
-        pre {
-            background-color: #f4f4f4;
-            padding: 10px;
-            border: 1px solid #ccc;
-            font-size: 14px;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-        }
-        input[type="text"] {
-            padding: 5px;
-            font-size: 16px;
-            width: 250px;
-        }
-        button {
-            padding: 5px 10px;
-            font-size: 16px;
-            cursor: pointer;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            margin-left: 10px;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-    </style>
+    <title>Текстовый редактор с Pyodide</title>
+    <script src="https://cdn.jsdelivr.net/npm/pyodide@0.23.4/pyodide.js"></script>
 </head>
 <body>
-
-    <h1>Текст:</h1>
-    <pre id="fileContent">Ваш исходный текст будет отображён здесь...</pre>
-
-    <h3>Введите слово для замены:</h3>
-    <input type="text" id="wordInput" required>
-    <button onclick="replaceWord()">Заменить</button>
-
-    <p id="statusMessage"></p>
+    <h1>Редактор текста с Pyodide</h1>
+    <form id="wordForm">
+        <label for="wordInput">Введите слово:</label>
+        <input type="text" id="wordInput" required>
+        <button type="submit">Обновить текст</button>
+    </form>
+    <div id="result"></div>
 
     <script>
-        // Исходный текст (для демонстрации)
-        const initialText = `Пример текста. Здесь будет слово, которое можно заменить. Например, слово тест.
-        Мы также можем заменить слово "слово" на доллары.`;
-
-        // Отображаем исходный текст на странице
-        document.getElementById('fileContent').textContent = initialText;
-
-        // Функция для замены слова
-        function replaceWord() {
-            const word = document.getElementById('wordInput').value.trim();
-            if (word === '') {
-                alert('Введите слово для замены.');
-                return;
-            }
-
-            const fileContent = document.getElementById('fileContent').textContent;
-            if (fileContent.includes(word)) {
-                const updatedContent = fileContent.replace(new RegExp(word, 'g'), `$${word}$`);
-                
-                // Обновляем отображение на странице
-                document.getElementById('fileContent').textContent = updatedContent;
-                document.getElementById('statusMessage').textContent = 'Слово заменено на $слово$.';
-            } else {
-                document.getElementById('statusMessage').textContent = 'Слово не найдено в тексте.';
-            }
+        // Функция загрузки Pyodide
+        async function loadPyodideAndRun() {
+            await loadPyodide();  // Загружаем Pyodide
         }
-    </script>
 
+        // Инициализация Pyodide
+        loadPyodideAndRun();
+
+        // Текущий текст, который будет обновляться
+        let text = "Это простой текст. Тут есть несколько слов.";
+
+        // Функция для обновления текста
+        async function updateText(word) {
+            // Запуск Python кода в Pyodide
+            const pythonCode = `
+import re
+def update_text(text, word):
+    if word in text:
+        updated_text = re.sub(rf'({re.escape(word)})', r'$$\1$$', text)
+        return updated_text
+    else:
+        return text
+update_text('${text}', '${word}')
+            `;
+            const updatedText = await pyodide.runPython(pythonCode);  // Запуск Python кода
+
+            return updatedText;
+        }
+
+        // Обработка отправки формы
+        document.getElementById('wordForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const word = document.getElementById('wordInput').value;  // Получаем введённое слово
+            const updatedText = await updateText(word);  // Обновляем текст с использованием Pyodide
+
+            document.getElementById('result').innerText = updatedText;  // Выводим результат на страницу
+        });
+    </script>
 </body>
 </html>
